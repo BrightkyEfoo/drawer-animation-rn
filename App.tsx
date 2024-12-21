@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Dimensions,
   StyleProp,
@@ -125,32 +125,50 @@ const CustomDrawer = ({
 
 export default function App() {
   const position = useSharedValue(fromCoords);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const onCloseDrawer = useCallback(() => {
-    position.value = withSpring(fromCoords, { damping: 80, stiffness: 200 });
+    position.value = withSpring(fromCoords, { damping: 80, stiffness: 150 });
+    setIsDrawerOpen(false);
   }, []);
   const onOpenDrawer = useCallback(() => {
-    position.value = withSpring(toCoords, { damping: 80, stiffness: 200 });
+    position.value = withSpring(toCoords, { damping: 80, stiffness: 150 });
+    setIsDrawerOpen(true);
   }, []);
+
+  useEffect(() => {
+    position.value = fromCoords;
+  }, []);
+
+  const translateX = useDerivedValue(() =>
+    interpolate(position.value.y, [0, height], [100, 0])
+  );
+  const opacity = useDerivedValue(() =>
+    interpolate(position.value.y, [0, height], [0, 1])
+  );
 
   const stylez = useAnimatedStyle(() => {
     return {
       position: "absolute",
       top: 40,
       right: 20,
-      opacity: interpolate(position.value.y, [0, height], [0, 1]),
-      transform: [{ translateX: interpolate(position.value.y, [0, height], [60, 0]) }],
+      opacity: opacity.value,
+      transform: [
+        {
+          translateX: translateX.value,
+        },
+      ],
     };
   });
-
   return (
     <View style={styles.container}>
       <CustomDrawer onPress={onCloseDrawer} position={position} />
       <AnimatedAntDesign
+        key={isDrawerOpen ? "open" : "close"}
         name="menufold"
         size={34}
         color="#222"
         onPress={onOpenDrawer}
-        style={stylez}
+        style={[{ opacity: 0.99 }, stylez]}
       />
 
       <StatusBar style="auto" />
