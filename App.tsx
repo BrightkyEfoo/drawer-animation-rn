@@ -132,7 +132,6 @@ export default function App() {
     position.value = withSpring(toCoords, { damping: 80, stiffness: 200 });
   }, []);
 
-  const y = useDerivedValue(() => position.value.y);
   const stylez = useAnimatedStyle(() => {
     return {
       position: "absolute",
