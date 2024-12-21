@@ -63,6 +63,16 @@ const CustomDrawer = ({
       points: `0,0 ${position.value.x},${position.value.y} ${width},${height} 0,${height}`,
     };
   }, []);
+  const textTranslateX = useDerivedValue(() =>
+    interpolate(position.value.y, [0, height], [0, -100])
+  );
+  const opacity = useDerivedValue(() =>
+    interpolate(position.value.y, [0, height], [1, 0])
+  );
+
+  const rotateY = useDerivedValue(
+    () => `${interpolate(position.value.y, [0, height], [0, 55])}deg`
+  );
   return (
     <MaskedView
       style={{ flex: 1 }}
@@ -89,7 +99,15 @@ const CustomDrawer = ({
             right: 20,
           }}
         />
-        <View style={styles.menu}>
+        <Animated.View
+          style={[
+            styles.menu,
+            {
+              opacity,
+              transform: [{ translateX: textTranslateX }, { rotateY }],
+            },
+          ]}
+        >
           <View>
             {routes.map((route, index) => {
               return (
@@ -117,7 +135,7 @@ const CustomDrawer = ({
               );
             })}
           </View>
-        </View>
+        </Animated.View>
       </View>
     </MaskedView>
   );
